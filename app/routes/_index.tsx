@@ -1,16 +1,23 @@
-import type { MetaFunction } from "@remix-run/node";
+import { Client, Events, GatewayIntentBits, type Message } from "discord.js"
 
-export const meta: MetaFunction = () => {
-	return [
-		{ title: "New Remix App" },
-		{ name: "description", content: "Welcome to Remix!" },
-	];
-};
+const client = new Client({
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+})
 
-export default function Index() {
-	return (
-		<div>
-			<p className="text-orange-400">{"aaaaaaaaaa"}</p>
-		</div>
-	);
+const isDebugMode = import.meta.env.MODE === "development"
+
+const token = isDebugMode
+  ? process.env.DISCORD_TOKEN_DEBUG
+  : process.env.DISCORD_TOKEN
+
+client.login(token)
+
+client.on(Events.ClientReady, (c) => {
+  console.log(`Ready! Logged in as ${c.user.tag}`)
+})
+
+client.on(Events.MessageCreate, onCreateMessage)
+
+async function onCreateMessage(message: Message<boolean>) {
+  console.log(message)
 }
